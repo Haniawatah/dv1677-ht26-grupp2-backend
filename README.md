@@ -1,47 +1,45 @@
-# SSR Editor HT26
+# Grupp 2 - Backend
 
-Starter-repo för DV1677 JavaScript-baserade webbramverk HT26.
+## Gruppmedlemmar
+* Hani Awatah (GitHub: Haniawatah)
+*  Tommy JOHANNESSON (GitHub: [Tommys-nick])
 
-ett exempel som är en server-renderad texteditor byggd med Express och SQLite. Under kursens gång byggs den om/refaktoreras.
 
-## Krav
+## Projektval
+Vi har valt att utgå från startrepot **ssr-editor-ht26**. 
+[Här fyller vi på varför, kanske imorgon?]
 
-> **OBS: Kräver Node.js 22.23 eller högre.**
-> `better-sqlite3` använder nativa binärer kompilerade för en specifik Node-version — äldre 22.x (t.ex. 22.11) ger `Segmentation fault` vid start.
->
-> Uppgradera med nvm:
-> ```bash
-> nvm install 22.23
-> nvm use 22.23
-> ```
 
-## Kom igång
+## Teknikval
+[Här fyller vi på om React imorgon]
 
-```bash
-npm install
-```
 
-Skapa en `.env`-fil utifrån exemplet:
 
-```bash
-cp .env.example .env
-```
+## Tillvägagångssätt
+**Installation och uppstart (Vecka 1-2)**
 
-Starta applikationen:
+När vi först klonade ner startrepot och försökte köra `npm start` stötte vi på ett problem där applikationen kraschade med felmeddelandet "Segmentation fault (core dumped)". Efter lite felsökning insåg vi att detta berodde på paketet 
 
-```bash
-npm start
-```
+`better-sqlite3`, som använder nativa binärer och kräver Node.js version 22.23 eller högre. Den lokala versionen var för gammal (v20).
 
-Öppna sedan `http://localhost:3000`
+För att lösa detta och få igång koden gjorde vi följande steg:
+1. Vi uppdaterade Node.js med hjälp av NVM genom att köra `nvm install 22.23` och därefter `nvm use 22.23`.
 
-## env-variabler
 
-`PORT` - porten som Express lyssnar på -> `3000`
+2. För att säkerställa att inga felkompilerade filer låg kvar raderade vi den gamla installationen: `rm -rf node_modules package-lock.json`.
 
-## Teknikstack
 
-- [node](https://nodejs.org)
-- [Express](https://expressjs.com)
-- [SQLite](https://www.sqlite.org) (byts ut mot MongoDB)
-- [EJS](https://ejs.co) (byts ut mot frontend-ramverk)
+3. Vi installerade om alla beroenden mot den nya Node-versionen: `npm install`.
+
+
+4. Vi körde `npm audit fix för att täppa till eventuella säkerhetsbrister i paketen.
+
+
+5. Kopierade miljövariablerna via `cp .env.example .env`.
+
+
+6. Slutligen startades servern framgångsrikt med `npm start`. 
+
+
+## PUT-route
+we have not started the part yet...
