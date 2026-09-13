@@ -1,17 +1,19 @@
 # Grupp 2 - Backend
 
 ## Gruppmedlemmar
-* Hani Awatah 
-*  Tommy JOHANNESSON 
+* Hani Awatah (Github: Haniawatah)
+* Tommy Johannesson (Github: tommy973)
 
 
 ## Projektval
-Vi har valt att utgå från startrepot **ssr-editor-ht26**. 
-[Här fyller vi på varför, kanske imorgon?]
+Valet föll på **ssr-editor** som projekt.
+Båda projekten verkade intressanta och innebär ju en möjlighet att få lära sig ett ramverk och dokumentbaserade databaser.
+Efter att ha läst igenom baselinen och kraven för projektet så föll valet ganska enkelt för båda på editorn. Vi kände båda två att vi skulle vilja lära oss hur en webbaserad texteditor byggs upp och hur den fungerar, dels i bakgrunden men också på framsidan där användaren är.
 
 
-
-
+## Teknikval
+Ramverket vi valt för vårt projekt är **React**.
+Dels har Hani vana av det ramverket då han använt det tidigare, och är då bekväm med strukturen inom React. Detta är ju också en trygghet i gruppen då Tommy inte arbetat med ramverk tidigare. För Tommys del så är uppfattningen att React är enklare att sätta sig in i än Vue för någon som är ny på området och det finns väldigt mycket resurser då det är ett av de största ramverken.
 
 
 ## Tillvägagångssätt
@@ -25,9 +27,8 @@ Vi klonade ner startrepot och satte upp den lokala utvecklingsmiljön. Följande
 4. Vi genomförde en säkerhetsgranskning och körde `npm audit fix` för att åtgärda eventuella sårbarheter.
 5. Servern startades framgångsrikt lokalt via `npm start`.
 
+
 ## Skapa och uppdatera dokument (delad routing)
-
-
 
 Lösning för Routing: Skapa vs Uppdatera
 
@@ -40,3 +41,16 @@ app.mjs, Vi lät den ursprungliga rot-routen  (POST /) vara kvar orörd för att
 docs.mjs, För att kommunicera med databasen skapade vi funktionen updateOne. Den tar emot dokumentets ID och innehåll, och kör en standard UPDATE-fråga mot SQLite-databasen för att skriva över den gamla datan.
 
 views/doc.ejs, För att formuläret ska skicka datan till rätt ställe, uppdaterade vi dess action-attribut. Istället för att posta till roten, skickar det nu dynamiskt datan till dokumentets URL baserat på dess ID.
+
+
+## Instruktioner för att köra appen lokalt
+
+Installera nödvändiga paket
+```bash
+npm install
+```
+
+Starta appllikationen på port 3000:
+```bash
+npm start
+```
