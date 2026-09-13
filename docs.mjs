@@ -12,6 +12,11 @@ const docs = {
             'INSERT INTO documents (title, content) VALUES (?, ?)'
         ).run(body.title, body.content);
         return { lastID: result.lastInsertRowid };
+    },
+    updateOne: async function updateOne(id, body) {
+        return db.prepare(
+            'UPDATE documents SET title = ?, content = ? WHERE id = ?'
+        ).run(body.title, body.content, id);
     }
 };
 

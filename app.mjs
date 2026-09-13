@@ -24,6 +24,11 @@ app.post("/", async (req, res) => {
     return res.redirect(`/${result.lastID}`);
 });
 
+app.post("/:id", async (req, res) => {
+    await documents.updateOne(req.params.id, req.body);
+    return res.redirect("/");
+});
+
 app.get('/:id', async (req, res) => {
     return res.render("doc", { doc: await documents.getOne(req.params.id) });
 });
