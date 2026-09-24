@@ -12,12 +12,12 @@ const docs = {
     },
     getOne: async function getOne(id) {
         connectToDatabase();
-        console.log("före" + typeof(id));
+        // console.log("före" + typeof(id));
         let temp = await db
             .collection("documents")
             .findOne({ _id: new ObjectId(id) });
         // console.log("efter" + typeof(_id));
-        console.log(temp);
+        // console.log(temp);
         return temp;
         // return await db.collection("documents").find({ _id: new ObjectId(id) }).toArray();
         // return db.prepare('SELECT * FROM documents WHERE id = ?').get(id) || {};
@@ -29,11 +29,12 @@ const docs = {
         return { lastID: result.lastInsertRowid };
     },
     updateOne: async function updateOne(id, body) {
+        connectToDatabase();
         const { title, content } = body;
 
         await db.collection("documents").updateOne(
             { _id: new ObjectId(id) },
-            { $set: {title, content } }
+            { $set: { title, content } }
         );
         // return db.prepare(
         //     'UPDATE documents SET title = ?, content = ? WHERE id = ?'
