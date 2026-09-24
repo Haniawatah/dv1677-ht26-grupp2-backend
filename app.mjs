@@ -33,17 +33,15 @@ if (process.env.NODE_ENV !== 'test') {
 //     return res.redirect(`/${result.lastID}`);
 // });
 
-// app.post("/:id", async (req, res) => {
-//     await documents.updateOne(req.params.id, req.body);
-//     return res.redirect("/");
-// });
+app.post("/:id", async (req, res) => {
+    await documents.updateOne(req.params.id, req.body);
+    return res.redirect("/");
+});
 
 // app.put("/:id", async (req, res) => {
 //     await documents.updateOne(req.params.id, req.body);
 //     return res.redirect("/");
 // });
-
-
 
 app.get('/:id', async (req, res) => {
 //     console.log(req.params.id);
