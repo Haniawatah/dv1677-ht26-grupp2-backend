@@ -1,6 +1,6 @@
 <%- include('includes/header'); %>
     <h2>Dokument</h2>
-    <form method="POST" action="/<%= doc.id %>" class="new-doc">
+    <form method="POST" action="/<%= doc._id %>" class="new-doc">
         <label for="title">Titel</label>
         <input type="text" name="title" value="<%= doc.title %>" />
 
