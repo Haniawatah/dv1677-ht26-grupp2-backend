@@ -7,10 +7,12 @@ import documents from "./docs.mjs";
 
 const port = process.env.PORT;
 
-import { connectToDatabase, seed, db } from "./db/database.mjs";
+import { connectToDatabase, seed } from "./db/database.mjs";
 
 connectToDatabase().then(() => {
-    app.listen(port, () => console.log(`App listening on port ${port}`));
+    app.listen(port, () => {
+        console.log(`App listening on port ${port}`)
+    });
 });
 
 seed();
@@ -28,6 +30,11 @@ if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined'));
 }
 
+// Middleware for att gå runt att express skickar en querry till mongoDB om favicon.ico
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end(); // 204 = No Content
+});
+
 // app.post("/", async (req, res) => {
 //     const result = await documents.addOne(req.body);
 //     return res.redirect(`/${result.lastID}`);
@@ -38,15 +45,7 @@ app.post("/:id", async (req, res) => {
     return res.redirect("/");
 });
 
-// app.put("/:id", async (req, res) => {
-//     await documents.updateOne(req.params.id, req.body);
-//     return res.redirect("/");
-// });
-
 app.get('/:id', async (req, res) => {
-//     console.log(req.params.id);
-    // let idParse = JSON.parse(req.params.id);
-//     console.log(idParse);
     return res.render("doc", { doc: await documents.getOne(req.params.id) });
     // res.json({ doc: await documents.getOne(req.params.id) });
 });
@@ -54,7 +53,3 @@ app.get('/:id', async (req, res) => {
 app.get('/', async (req, res) => {
     return res.render("index", { docs: await documents.getAll() });
 });
-
-// app.listen(port, () => {
-//     console.log(`Example app listening on port ${port}`);
-// });
