@@ -14,10 +14,12 @@ const docs = {
         return temp;
     },
     addOne: async function addOne(body) {
-        const result = db.prepare(
-            'INSERT INTO documents (title, content) VALUES (?, ?)'
-        ).run(body.title, body.content);
-        return { lastID: result.lastInsertRowid };
+        // const { title, content } = body;
+        console.log(body);
+
+        connectToDatabase();
+        const result = await db.collection("documents").insertOne(body);
+        // return result;
     },
     updateOne: async function updateOne(id, body) {
         connectToDatabase();
