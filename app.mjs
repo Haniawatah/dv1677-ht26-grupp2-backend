@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import express from 'express';
+import apiRouter from './routes/api_routes.mjs';
 import path from 'path';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -7,12 +8,10 @@ import documents from "./docs.mjs";
 
 const port = process.env.PORT;
 
-import { connectToDatabase, seed } from "./db/database.mjs";
+import { connectToDatabase, seed, db } from "./db/database.mjs";
 
 connectToDatabase().then(() => {
-    app.listen(port, () => {
-        console.log(`App listening on port ${port}`)
-    });
+    app.listen(port, () => console.log(`App listening on port ${port}`));
 });
 
 seed();
@@ -25,6 +24,7 @@ app.use(express.static(path.join(process.cwd(), "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
+app.use("/api", apiRouter);
 
 if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined'));
