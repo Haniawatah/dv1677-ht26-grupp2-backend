@@ -6,7 +6,7 @@ services:
         environment:
             PORT: 3000
             MONGODB_URI: mongodb://root:secret@mongodb:27017/
-            DATABASE_NAME: jsramverk
+            DB_NAME: jsramverk
         depends_on:
             - mongodb
         restart: unless-stopped

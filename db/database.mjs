@@ -1,20 +1,30 @@
 import 'dotenv/config';
 import { MongoClient } from "mongodb";
-import { existsSync, mkdirSync } from 'fs';
 
-// Skapa db-mappen om den inte finns
-if (!existsSync('./db')) {
-    mkdirSync('./db');
-}
-
-const client = new MongoClient(process.env.MONGODB_URI);
+let client;
 let db;
 
-// Koppla upp mot databasen
+// Connect to the database, but only once. If we already have a
+// connection we just reuse it instead of connecting again.
 async function connectToDatabase() {
+    if (db) {
+        return db;
+    }
+
+    client = new MongoClient(process.env.MONGODB_URI);
     await client.connect();
     db = client.db(process.env.DB_NAME);
     console.log("Connected to MongoDB");
+    return db;
+}
+
+// Close the connection. Mostly used when tests are done running.
+async function closeDatabase() {
+    if (client) {
+        await client.close();
+        client = undefined;
+        db = undefined;
+    }
 }
 
 // Fyll databasen med dokument
@@ -34,17 +44,13 @@ async function seed() {
         }
     ];
 
-    try {
-        await client.connect();
-        db = client.db(process.env.DB_NAME);
-        const collection = db.collection("documents");
+    await connectToDatabase();
+    const collection = db.collection("documents");
 
-        // Raderar innehållet i databasen och lägger till dbContent på nytt
-        await collection.deleteMany({});
-        await collection.insertMany(dbContent);
-    } finally {
-        await client.close();
-    }
+    // Raderar innehållet i databasen och lägger till dbContent på nytt
+    await collection.deleteMany({});
+    await collection.insertMany(dbContent);
 };
 
-export { connectToDatabase, seed, db };
+export { connectToDatabase, closeDatabase, seed, db };
+

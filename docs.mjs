@@ -3,33 +3,36 @@ import { ObjectId } from 'mongodb';
 
 const docs = {
     getAll: async function getAll() {
-        connectToDatabase();
-        let temp = await db.collection("documents").find().toArray();
-        console.log(temp);
-        return temp;
+        await connectToDatabase();
+        const documents = await db.collection("documents").find().toArray();
+        return documents;
     },
     getOne: async function getOne(id) {
-        connectToDatabase();
-        let temp = await db.collection("documents").findOne({ _id: new ObjectId(id) });
-        return temp;
+        await connectToDatabase();
+        const document = await db.collection("documents").findOne({ _id: new ObjectId(id) });
+        return document;
     },
     addOne: async function addOne(body) {
-        // const { title, content } = body;
-        console.log(body);
-
-        connectToDatabase();
+        await connectToDatabase();
         const result = await db.collection("documents").insertOne(body);
-        // return result;
+        return result;
     },
     updateOne: async function updateOne(id, body) {
-        connectToDatabase();
+        await connectToDatabase();
         const { title, content } = body;
 
-        await db.collection("documents").updateOne(
+        const result = await db.collection("documents").updateOne(
             { _id: new ObjectId(id) },
             { $set: { title, content } }
         );
+        return result;
+    },
+    deleteOne: async function deleteOne(id) {
+        await connectToDatabase();
+        const result = await db.collection("documents").deleteOne({ _id: new ObjectId(id) });
+        return result;
     }
 };
 
 export default docs;
+

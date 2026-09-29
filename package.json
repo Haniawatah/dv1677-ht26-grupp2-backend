@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "Starter project for DV1677 JSRamverk",
   "type": "module",
-  "main": "app.mjs",
+  "main": "server.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.mjs",
-    "dev": "node --watch app.mjs"
+    "test": "vitest run",
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs"
   },
   "keywords": [],
   "author": "",
@@ -18,9 +18,13 @@
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "ejs": "^3.1.10",
     "express": "^4.19.2",
     "mongodb": "^7.6.0",
     "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.3.0",
+    "supertest": "^7.3.0",
+    "vitest": "^5.0.2"
   }
 }
