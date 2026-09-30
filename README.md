@@ -43,6 +43,23 @@ docs.mjs, För att kommunicera med databasen skapade vi funktionen updateOne. De
 views/doc.ejs, För att formuläret ska skicka datan till rätt ställe, uppdaterade vi dess action-attribut. Istället för att posta till roten, skickar det nu dynamiskt datan till dokumentets URL baserat på dess ID.
 
 
+## Backend-refaktorering (Vecka 3-5)
+
+Under vecka 3-5 fortsatte vi arbetet med backend enligt tre steg:
+
+1. Stadning: Vi tog bort alla kvarvarande SQLite-filer och hela views-mappen
+   med EJS-mallar. Appen renderar inte lengre HTML utan är nu en ren backend.
+
+2. JSON-API: Vi byggde om routes/ api_routes.mjs till ett fullstandigt REST-API
+   under /api/documents med GET, POST, PUT och DELETE. Alla anrop laser och
+   skriver JSON och svarar med tydliga statuskoder (400 vid felaktigt id,
+   404 om dokumentet inte finns).
+
+3. Tester: Vi delade upp app.mjs och server.mjs sa att Express-appen kan
+   testas utan att starta en riktig server. Vi lade till vitest, supertest
+   och mongodb-memory-server och skrev tester i tests mappen som täcker
+   samtliga HTTP-metoder mot API:et.
+
 ## Instruktioner för att köra appen lokalt
 
 Installera nödvändiga paket

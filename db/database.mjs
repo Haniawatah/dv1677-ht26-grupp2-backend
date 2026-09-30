@@ -1,43 +1,56 @@
-import Database from 'better-sqlite3';
-import { existsSync, mkdirSync } from 'fs';
+import 'dotenv/config';
+import { MongoClient } from "mongodb";
 
-// Skapa db-mappen om den inte finns
-if (!existsSync('./db')) {
-    mkdirSync('./db');
+let client;
+let db;
+
+// Connect to the database, but only once. If we already have a
+// connection we just reuse it instead of connecting again.
+async function connectToDatabase() {
+    if (db) {
+        return db;
+    }
+
+    client = new MongoClient(process.env.MONGODB_URI);
+    await client.connect();
+    db = client.db(process.env.DB_NAME);
+    console.log("Connected to MongoDB");
+    return db;
 }
 
-const dbFilename = process.env.NODE_ENV === 'test'
-    ? './db/test.db'
-    : './db/docs.db';
+// Close the connection. Mostly used when tests are done running.
+async function closeDatabase() {
+    if (client) {
+        await client.close();
+        client = undefined;
+        db = undefined;
+    }
+}
 
-const db = new Database(dbFilename);
+// Fyll databasen med dokument
+async function seed() {
+    const dbContent = [
+        {
+            "title": "Ett dokument",
+            "content": "Det här är innehållet är ett innehåll i ett dokument."
+        },
+        {
+            "title": "Handla mat",
+            "content": "Kom ihåg att handla mjölk och träskruv."
+        },
+        {
+            "title": "Mötesanteckningar",
+            "content": "Mötet hölls den 1 september. Närvarande: Sven och ingen alls. Nytt möte varje onsdag 09:00-21:42."
+        }
+    ];
 
-// Skapa tabell om den inte finns
-db.exec(`
-    CREATE TABLE IF NOT EXISTS documents (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        title TEXT,
-        content TEXT
-    )
-`);
+    await connectToDatabase();
+    const collection = db.collection("documents");
 
-//för att lägga in exempeldata i sqlite
-//avkommentera och kör servern så läggs tre dokument in med info nedan
-const seed = db.transaction(() => {
-    db.prepare("DELETE FROM documents").run();
-    db.prepare("INSERT INTO documents (title, content) VALUES (?, ?)").run(
-        "ett dokument",
-        "Det här är innehållet är ett innehåll i ett dokument."
-    );
-    db.prepare("INSERT INTO documents (title, content) VALUES (?, ?)").run(
-        "Handla mat",
-        "Kom ihåg att handla mjölk och träskruv."
-    );
-    db.prepare("INSERT INTO documents (title, content) VALUES (?, ?)").run(
-        "Mötesanteckningar",
-        "Mötet hölls den 1 september. Närvarande: Sven och ingen alls. Nytt möte varje onsdag 09:00-21:42."
-    );
-});
-seed();
+    // Raderar innehållet i databasen och lägger till dbContent på nytt
+    await collection.deleteMany({});
+    await collection.insertMany(dbContent);
+};
 
-export default db;
+export { connectToDatabase, closeDatabase, seed, db };
+
