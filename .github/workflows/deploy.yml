@@ -1,0 +1,50 @@
+name: Deploy
+
+# aktiveras när en branch pushas till main
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Logga in på ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bygg och pusha image till ghcr.io
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: ghcr.io/Haniawatah/dv1677-ht26-grupp2-backend:latest
+      
+      - name: Kopiera docker-compose.yml till VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: docker-compose.yml
+          target: ~/dv1677-ht26-grupp2-backend
+      
+      - name: Deploy till VPS via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ~/dv1677-ht26-grupp2-backend
+
+            echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
+
+            docker compose pull
+            docker compose down
+            docker compose up -d
