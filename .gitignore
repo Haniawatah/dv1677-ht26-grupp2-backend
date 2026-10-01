@@ -2,3 +2,5 @@
 node_modules/
 *.sqlite
 *.db
+deploy_key
+deploy_key.pub
