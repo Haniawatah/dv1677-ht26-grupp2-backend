@@ -3,7 +3,7 @@ name: Deploy
 # aktiveras när en branch pushas till main
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
   deploy:
