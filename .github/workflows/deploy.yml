@@ -18,9 +18,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    permissions:
+    persmissions:
       contents: read
-      packages: write
     needs: test
     steps:
       - uses: actions/checkout@v4
