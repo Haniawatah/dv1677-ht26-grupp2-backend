@@ -47,6 +47,7 @@ describe('GET /api/documents', () => {
     });
 });
 
+
 describe('GET /api/documents/:id', () => {
     it('returns the document when the id exists', async () => {
         const response = await request(app).get(`/api/documents/${existingId}`);
