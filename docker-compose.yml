@@ -1,7 +1,7 @@
 services:
     app:
         build: .
-        image: ghcr.io/Haniawatah/dv1677-ht26-grupp2-backend:latest
+        image: ghcr.io/haniawatah/dv1677-ht26-grupp2-backend:latest
         container_name: dv1677-ht26-grupp2-backend
         ports:
             - "${PORT:-3000}:3000"
