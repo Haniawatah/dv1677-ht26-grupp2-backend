@@ -18,6 +18,8 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    persmissions:
+      contents: read
     needs: test
     steps:
       - uses: actions/checkout@v4
@@ -31,8 +33,6 @@ jobs:
 
       - name: Bygg och pusha image till ghcr.io
         uses: docker/build-push-action@v5
-        permissions:
-          contents: read
         with:
           push: true
           tags: ghcr.io/Haniawatah/dv1677-ht26-grupp2-backend:latest
