@@ -18,7 +18,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    persmissions:
+    permissions:
       contents: read
     needs: test
     steps:
