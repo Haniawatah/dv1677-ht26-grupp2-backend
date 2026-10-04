@@ -88,7 +88,9 @@ npm test
 
 ### Krav 6: Dokumentation
 För att köra projektet lokalt:
+
 **Backend:**
+
 Klona repot
 ```bash
 git clone https://github.com/Haniawatah/dv1677-ht26-grupp2-backend.git
@@ -103,6 +105,7 @@ docker compose up -d
 ```
 
 **Miljövariabler:**
+
 | Miljövariabel | Förklaring | Exempel |
 |---------------|------------|---------|
 | MONGODB_URI | Adress till databasen | mongodb://root:secret@localhost:27017 |
