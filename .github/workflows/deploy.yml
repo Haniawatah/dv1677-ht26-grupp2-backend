@@ -18,6 +18,9 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     needs: test
     steps:
       - uses: actions/checkout@v4
@@ -56,7 +59,12 @@ jobs:
             cd ~/dv1677-ht26-grupp2-backend
 
             echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
+            echo "PORT=3000" >> .env
+            echo "DB_NAME=jsramverk" >> .env
+
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             docker compose pull
             docker compose down
             docker compose up -d
+            
