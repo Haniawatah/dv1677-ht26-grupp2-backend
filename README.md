@@ -89,7 +89,12 @@ npm test
 ```
 
 ### Krav 6: Dokumentation
-För att köra projektet lokalt:
+
+**Länk till driftsatt backend** : https://dv1677-data.nplab.bth.se/api/documents
+
+**Länk till driftsatt frontend** : https://Haniawatah.github.io/dv1677-ht26-grupp2-frontend/
+
+För att köra backend lokalt:
 
 **Backend:**
 
