@@ -10,7 +10,7 @@ services:
             DB_NAME: ${DB_NAME:-jsramverk}
         depends_on:
             - mongodb
-        # restart: unless-stopped
+        restart: unless-stopped
 
     mongodb:
         image: mongo:latest
