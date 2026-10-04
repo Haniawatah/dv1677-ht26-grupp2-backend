@@ -58,6 +58,7 @@ jobs:
 
             echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
             echo "PORT=3000" >> .env
+            echo "DB_NAME=jsramverk" >> .env
 
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
