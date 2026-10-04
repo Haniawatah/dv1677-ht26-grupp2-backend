@@ -1,6 +1,5 @@
 services:
     app:
-        build: .
         image: ghcr.io/haniawatah/dv1677-ht26-grupp2-backend:latest
         container_name: dv1677-ht26-grupp2-backend
         ports:
