@@ -58,6 +58,8 @@ jobs:
 
             echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
 
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
             docker compose pull
             docker compose down
             docker compose up -d
