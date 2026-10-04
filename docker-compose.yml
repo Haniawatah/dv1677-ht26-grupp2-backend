@@ -3,8 +3,9 @@ services:
         image: ghcr.io/haniawatah/dv1677-ht26-grupp2-backend:latest
         container_name: dv1677-ht26-grupp2-backend
         ports:
-            - "3000:3000"
+            - "${PORT:-3000}:3000"
         environment:
+            PORT: 3000
             MONGODB_URI: ${MONGODB_URI:-mongodb://root:secret@mongodb:27017/}
             DB_NAME: ${DB_NAME:-jsramverk}
         depends_on:
