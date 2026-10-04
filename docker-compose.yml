@@ -10,7 +10,7 @@ services:
             DB_NAME: ${DB_NAME:-jsramverk}
         depends_on:
             - mongodb
-        restart: unless-stopped
+        # restart: unless-stopped
 
     mongodb:
         image: mongo:latest
@@ -20,7 +20,7 @@ services:
             MONGO_INITDB_ROOT_PASSWORD: secret
         volumes:
             - mongodbdata:/data/db
-        # restart: always
+        restart: always
 
 volumes:
     mongodbdata:
