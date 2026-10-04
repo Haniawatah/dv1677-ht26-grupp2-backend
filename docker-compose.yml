@@ -20,7 +20,7 @@ services:
             MONGO_INITDB_ROOT_PASSWORD: secret
         volumes:
             - mongodbdata:/data/db
-        restart: always
+        # restart: always
 
 volumes:
     mongodbdata:
