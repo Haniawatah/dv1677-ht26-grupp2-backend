@@ -45,29 +45,64 @@ views/doc.ejs, För att formuläret ska skicka datan till rätt ställe, uppdate
 
 ## Backend-refaktorering (Vecka 3-5)
 
-Under vecka 3-5 fortsatte vi arbetet med backend enligt tre steg:
+### Krav 1: Migrering: SQLite till MongoDB
+Då textdokumentens innehåll och information framöver ska lagras i en dokumentbaserad databas med en JSON-liknande struktur behöver både lagringen i databasen och kommunikationen mot databasen ändras. Vi kör med samma grund i *database.mjs* som SQLite-databasen men bytt ut all kod så att det skapas en collection för alla textdokument och som sedan fylls på med lite exempeldata. När databasen väl var på plats så byttes kommunikationen mellan routesen och databasen ut så att användaren kunde läsa från och skriva till databasen via vyerna. Även de övriga sql- och bash-filerna är numera borta.
 
-1. Stadning: Vi tog bort alla kvarvarande SQLite-filer och hela views-mappen
-   med EJS-mallar. Appen renderar inte lengre HTML utan är nu en ren backend.
+**Datamodell**
+I nuläget så består vår databas enbart av en collection, **documents**, som utöver *objectID* innehåller två fält. Det är *title* som lagrar titeln på användarens dokument och *content* som är själva innehållet som användaren skrivit in.
 
-2. JSON-API: Vi byggde om routes/ api_routes.mjs till ett fullstandigt REST-API
-   under /api/documents med GET, POST, PUT och DELETE. Alla anrop laser och
-   skriver JSON och svarar med tydliga statuskoder (400 vid felaktigt id,
-   404 om dokumentet inte finns).
+Vi har valt att använda oss av en docker-container för att lagra databasen.
 
-3. Tester: Vi delade upp app.mjs och server.mjs sa att Express-appen kan
-   testas utan att starta en riktig server. Vi lade till vitest, supertest
-   och mongodb-memory-server och skrev tester i tests mappen som täcker
-   samtliga HTTP-metoder mot API:et.
+Startas genom
+```bash
+docker compose -f docker-compose.yml up -d mongodb
+```
 
-## Instruktioner för att köra appen lokalt
+### Krav 2: JSON-API
+Vi skapade en ny fil *routes/api_routes.mjs* som får hantera alla routes som hör till API:et. Här i byggdes ett fullständigt REST-API under /api/documents med GET, POST, PUT och DELETE. Alla anrop läser och skriver JSON och svarar med tydliga statuskoder (400 vid felaktigt id, 404 om dokumentet inte finns, 500 om det finns ett fel på servern och 200 om allt funkar ok).
 
+### Krav 3: Påbörja frontend i Javascript-ramverk
+Påbörjat och grunden lagd för en frontend byggd med React och Vite.
+Länk till repo:
+https://github.com/Haniawatah/dv1677-ht26-grupp2-frontend
+
+### Krav 4: Driftsättning backend
+De fyra filerna (*Dockerfile, docker-compose, ci och deploy*) finns på plats. Tillsammans med GitHub secrets och SSH-nyckelparet för kontakten mellan VPS:en och GitHub kan två images skapas och två Docker-containers startas som kör vår Express-backend och databas.
+
+### Krav 5: Tester
+Vi delade upp *app.mjs* och lade delar av koden i *server.mjs* så att Express-appen kan testas utan att starta en riktig server. Vi lade sedan till vitest, supertest och mongodb-memory-server och skrev tester i *tests*-mappen som täcker samtliga HTTP-metoder mot API:et. Både *ci.yml* och *deploy.yml* har uppdaterats för att testerna ska köras vid varje push.
+
+Testerna som körs är:
+**GET** : Testar att hämta alla document som finns i collectionen och att det returneras en OK statuskod. Sedan testas att hämta ett enskilt dokument med olika utfall. Vad händer om dokumentet finns respektive om dokumentet eller objectID:et inte existerar.
+
+**POST** : Tester körs för att lägga till nya documents och kontrollerar så att det returnerar korrekta statuskoder för om ett dokument läggs till eller om något fel uppstår, exempelvis att det saknas någon attribut som behöver finnas för att dokumentet ska kunna skapas.
+
+**PUT-DELETE** : Testar att uppdatera ett existerande dokument och utfallen att uppdateringen görs eller att uppdateringen försöker göras mot ett dokument som inte existerar. Samma utfall kontrolleras för att radera ett dokument i databasen.
+
+Testerna kan köras med
+```bash
+npm test
+```
+
+### Krav 6: Dokumentation
+För att köra projektet lokalt:
+**Backend:**
+Klona repot
+```bash
+git clone https://github.com/Haniawatah/dv1677-ht26-grupp2-backend.git
+```
 Installera nödvändiga paket
 ```bash
 npm install
 ```
-
-Starta appllikationen på port 3000:
+Driftsätt backend
 ```bash
-npm start
+docker compose up -d
 ```
+
+**Miljövariabler:**
+| Miljövariabel | Förklaring | Exempel |
+|---------------|------------|---------|
+| MONGODB_URI | Adress till databasen | mongodb://root:secret@localhost:27017 |
+| DB_NAME | Namnet på databasen | jsramverk |
+| PORT | Port som backend körs på | 3000 |
