@@ -49,6 +49,7 @@ views/doc.ejs, För att formuläret ska skicka datan till rätt ställe, uppdate
 Då textdokumentens innehåll och information framöver ska lagras i en dokumentbaserad databas med en JSON-liknande struktur behöver både lagringen i databasen och kommunikationen mot databasen ändras. Vi kör med samma grund i *database.mjs* som SQLite-databasen men bytt ut all kod så att det skapas en collection för alla textdokument och som sedan fylls på med lite exempeldata. När databasen väl var på plats så byttes kommunikationen mellan routesen och databasen ut så att användaren kunde läsa från och skriva till databasen via vyerna. Även de övriga sql- och bash-filerna är numera borta.
 
 **Datamodell**
+
 I nuläget så består vår databas enbart av en collection, **documents**, som utöver *objectID* innehåller två fält. Det är *title* som lagrar titeln på användarens dokument och *content* som är själva innehållet som användaren skrivit in.
 
 Vi har valt att använda oss av en docker-container för att lagra databasen.
@@ -73,6 +74,7 @@ De fyra filerna (*Dockerfile, docker-compose, ci och deploy*) finns på plats. T
 Vi delade upp *app.mjs* och lade delar av koden i *server.mjs* så att Express-appen kan testas utan att starta en riktig server. Vi lade sedan till vitest, supertest och mongodb-memory-server och skrev tester i *tests*-mappen som täcker samtliga HTTP-metoder mot API:et. Både *ci.yml* och *deploy.yml* har uppdaterats för att testerna ska köras vid varje push.
 
 Testerna som körs är:
+
 **GET** : Testar att hämta alla document som finns i collectionen och att det returneras en OK statuskod. Sedan testas att hämta ett enskilt dokument med olika utfall. Vad händer om dokumentet finns respektive om dokumentet eller objectID:et inte existerar.
 
 **POST** : Tester körs för att lägga till nya documents och kontrollerar så att det returnerar korrekta statuskoder för om ett dokument läggs till eller om något fel uppstår, exempelvis att det saknas någon attribut som behöver finnas för att dokumentet ska kunna skapas.
