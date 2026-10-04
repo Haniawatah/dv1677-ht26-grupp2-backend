@@ -57,6 +57,8 @@ jobs:
             cd ~/dv1677-ht26-grupp2-backend
 
             echo "MONGODB_URI=${{ secrets.MONGODB_URI }}" > .env
+            echo "\n" >> .env
+            echo "PORT=3000" >> .env
 
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
