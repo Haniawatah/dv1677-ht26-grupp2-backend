@@ -118,3 +118,4 @@ docker compose up -d
 | MONGODB_URI | Adress till databasen | mongodb://root:secret@localhost:27017 |
 | DB_NAME | Namnet på databasen | jsramverk |
 | PORT | Port som backend körs på | 3000 |
+
