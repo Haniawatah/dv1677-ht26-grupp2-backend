@@ -119,3 +119,11 @@ docker compose up -d
 | DB_NAME | Namnet på databasen | jsramverk |
 | PORT | Port som backend körs på | 3000 |
 
+**GitHub-secrets**
+
+| Secret | Förklaring | Exempel |
+|---------------|------------|---------|
+| MONGODB_URI | Adress till databasen | mongodb://localhost:27017 |
+| VPS_HOST | IP-adressen till vår VPS | 194.47.155.218 |
+| VPS_SSH_KEY | En privat SSH-nyckel | -----BEGIN OPENSSH PRIVATE KEY----- .... -----END OPENSSH PRIVATE KEY----- |
+| VPS_USER | Användarnamnet på användaren | Ubuntu |
