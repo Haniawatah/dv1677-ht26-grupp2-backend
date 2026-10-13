@@ -46,11 +46,11 @@ async function seed() {
 
     await connectToDatabase();
     const collection = db.collection("documents");
-
-    // Raderar innehållet i databasen och lägger till dbContent på nytt
-    await collection.deleteMany({});
-    await collection.insertMany(dbContent);
+    
+    // Lägger till data om databasen är tom
+    if (collection.countDocuments() == 0) {
+        await collection.insertMany(dbContent);
+    }
 };
 
 export { connectToDatabase, closeDatabase, seed, db };
-
