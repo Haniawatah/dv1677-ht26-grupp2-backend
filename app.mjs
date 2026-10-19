@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import express from 'express';
-import authRouter from './routes/auth.mjs';
 import apiRouter from './routes/api_routes.mjs';
 import testRouter from './routes/test_routes.mjs';
 import path from 'path';
