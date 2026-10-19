@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import apiRouter from './routes/api_routes.mjs';
+import testRouter from './routes/test_routes.mjs';
 import path from 'path';
 import morgan from 'morgan';
 import cors from 'cors';
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 app.use("/api", apiRouter);
+app.use("/test", testRouter);
 
 if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('combined'));
