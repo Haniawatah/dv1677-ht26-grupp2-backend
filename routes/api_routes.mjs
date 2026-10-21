@@ -1,6 +1,7 @@
 import express from "express";
 import { ObjectId } from "mongodb";
 import documents from "../docs.mjs";
+import auth from "../models/auth.mjs";
 
 const apiRouter = express.Router();
 
@@ -14,19 +15,19 @@ apiRouter.get("/documents", async (req, res) => {
     }
 });
 
-apiRouter.get("/test", async (req, res) => {
-    try {
-        res.status(200).json({ 
-            data: {
-                first: "ett",
-                last: "five",
-                everything: "42"
-            }
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+// apiRouter.get("/test", async (req, res) => {
+//     try {
+//         res.status(200).json({ 
+//             data: {
+//                 first: "ett",
+//                 last: "five",
+//                 everything: "42"
+//             }
+//         });
+//     } catch (error) {
+//         res.status(500).json({ error: error.message });
+//     }
+// });
 
 // GET /api/documents/:id — return a single document by its _id
 apiRouter.get("/documents/:id", async (req, res) => {
@@ -110,6 +111,14 @@ apiRouter.delete("/documents/:id", async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+});
+
+apiRouter.post("/auth/register", (req, res) => {
+    auth.register(res, req.body);
+});
+
+apiRouter.post("/auth/login", (req, res) => {
+    auth.login(res, req.body);
 });
 
 export default apiRouter;
