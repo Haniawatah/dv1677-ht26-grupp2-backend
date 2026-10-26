@@ -38,14 +38,14 @@ apiRouter.get("/documents/:id", async (req, res) => {
 // POST /api/documents — create a new document
 apiRouter.post("/documents", async (req, res) => {
     try {
-        const { title, content } = req.body;
+        const { title, content, type } = req.body;
 
-        if (!title || !content) {
-            return res.status(400).json({ error: "Title and content are required" });
+        if (!title || !content || !type) {
+            return res.status(400).json({ error: "Title, content and type are required" });
         }
 
-        const result = await documents.addOne({ title, content });
-        res.status(201).json({ data: { id: result.insertedId, title, content } });
+        const result = await documents.addOne({ title, content, type });
+        res.status(201).json({ data: { id: result.insertedId, title, content, type } });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
