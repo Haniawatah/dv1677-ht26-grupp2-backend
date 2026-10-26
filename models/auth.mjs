@@ -12,19 +12,21 @@ const auth = {
                 return res.status(400).json({ error: "Email and password are required" });
             }
 
+            const normalizedEmail = email.trim().toLowerCase();
+
             await connectToDatabase();
 
-            const existingUser = await db.collection('users').findOne({ email });
+            const existingUser = await db.collection('users').findOne({ email: normalizedEmail });
             if (existingUser) {
                 return res.status(409).json({ error: "Email is already registered" });
             }
 
             const hash = await bcrypt.hash(password, 10);
-            const result = await db.collection('users').insertOne({ email, password: hash });
+            const result = await db.collection('users').insertOne({ email: normalizedEmail, password: hash });
 
             const token = jwt.sign(
-                { id: result.insertedId.toString(), email },
-                process.env.JWT_SECRET || 'dev-secret',
+                { id: result.insertedId.toString(), email: normalizedEmail },
+                process.env.JWT_SECRET,
                 { expiresIn: '2h' }
             );
 
@@ -43,18 +45,20 @@ const auth = {
                 return res.status(400).json({ error: "Email and password are required" });
             }
 
+            const normalizedEmail = email.trim().toLowerCase();
+
             await connectToDatabase();
 
-            const user = await db.collection('users').findOne({ email });
+            const user = await db.collection('users').findOne({ email: normalizedEmail });
             const ok = user && await bcrypt.compare(password, user.password);
 
             if (!ok) {
-                return res.status(401).json({ error: 'Fel e-post eller lösenord' });
+                return res.status(401).json({ error: 'Wrong email or password' });
             }
 
             const token = jwt.sign(
                 { id: user._id.toString(), email: user.email },
-                process.env.JWT_SECRET || 'dev-secret',
+                process.env.JWT_SECRET,
                 { expiresIn: '2h' }
             );
 

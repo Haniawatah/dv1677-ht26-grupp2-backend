@@ -1,6 +1,4 @@
 import jwt from "jsonwebtoken";
-const SECRET = process.env.JWT_SECRET || 'dev-secret';
-
 
 export default function requireAuth(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -15,7 +13,7 @@ export default function requireAuth(req, res, next) {
     }
 
     try {
-        const decoded = jwt.verify(parts[1], SECRET);
+        const decoded = jwt.verify(parts[1], process.env.JWT_SECRET);
         req.user = { id: decoded.id, email: decoded.email };
         next();
     } catch (error) {
