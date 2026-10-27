@@ -7,6 +7,7 @@ let app;
 let closeDatabase;
 let documents;
 let existingId;
+let token;
 
 
 
@@ -15,6 +16,7 @@ beforeAll(async () => {
 
     process.env.MONGODB_URI = mongoServer.getUri();
     process.env.DB_NAME = 'testdb';
+    process.env.JWT_SECRET = 'test-secret';
 
     const appModule = await import('../app.mjs');
     const dbModule = await import('../db/database.mjs');
@@ -24,10 +26,17 @@ beforeAll(async () => {
     closeDatabase = dbModule.closeDatabase;
     documents = docsModule.default;
 
+    const reg = await request(app)
+        .post('/api/auth/register')
+        .send({ email: 'put@test.se', password: 'secret123' });
+    token = reg.body.data.token;
+
+    const user = await dbModule.db.collection('users').findOne({ email: 'put@test.se' });
+
     const result = await documents.addOne({
         title: 'Original title',
         content: 'Original content'
-    });
+    }, user._id.toString());
     existingId = result.insertedId.toString();
 });
 
@@ -40,6 +49,7 @@ describe('PUT /api/documents/:id', () => {
     it('updates an existing document', async () => {
         const response = await request(app)
             .put(`/api/documents/${existingId}`)
+            .set('Authorization', `Bearer ${token}`)
             .send({ title: 'Updated title', content: 'Updated content' });
 
         expect(response.status).toBe(200);
@@ -50,6 +60,7 @@ describe('PUT /api/documents/:id', () => {
         const fakeId = '64b1f0f0f0f0f0f0f0f0f0f0';
         const response = await request(app)
             .put(`/api/documents/${fakeId}`)
+            .set('Authorization', `Bearer ${token}`)
             .send({ title: 'Does not matter', content: 'Does not matter' });
 
         expect(response.status).toBe(404);
@@ -58,14 +69,18 @@ describe('PUT /api/documents/:id', () => {
 
 describe('DELETE /api/documents/:id', () => {
     it('deletes an existing document', async () => {
-        const response = await request(app).delete(`/api/documents/${existingId}`);
+        const response = await request(app)
+            .delete(`/api/documents/${existingId}`)
+            .set('Authorization', `Bearer ${token}`);
 
         expect(response.status).toBe(200);
         expect(response.body.data).toBeDefined();
     });
 
     it('returns 404 when trying to delete the same document again', async () => {
-        const response = await request(app).delete(`/api/documents/${existingId}`);
+        const response = await request(app)
+            .delete(`/api/documents/${existingId}`)
+            .set('Authorization', `Bearer ${token}`);
 
         expect(response.status).toBe(404);
     });
