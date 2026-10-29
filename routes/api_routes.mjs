@@ -53,9 +53,14 @@ apiRouter.post("/documents", async (req, res) => {
 
 // PUT /api/documents/:id — update an existing document
 apiRouter.put("/documents/:id", async (req, res) => {
+    console.log("3")
+    console.log(req.params)
     try {
         const { id } = req.params;
+        console.log("4")
+        console.log(id)
         const { title, content } = req.body;
+        console.log(req.body)
 
         if (!ObjectId.isValid(id)) {
             return res.status(400).json({ error: "Invalid document id" });
@@ -64,9 +69,11 @@ apiRouter.put("/documents/:id", async (req, res) => {
         if (!title || !content) {
             return res.status(400).json({ error: "Title and content are required" });
         }
-
+        console.log("5")
+        console.log(id)
         const result = await documents.updateOne(id, { title, content });
-
+        console.log("6")
+        console.log(id)
         if (result.matchedCount === 0) {
             return res.status(404).json({ error: "Document not found" });
         }
