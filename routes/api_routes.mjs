@@ -58,11 +58,8 @@ apiRouter.post("/documents", async (req, res) => {
 
 // PUT /api/documents/:id  update an existing document owned by the user
 apiRouter.put("/documents/:id", async (req, res) => {
-    console.log("3")
-    console.log(req.params)
     try {
         const { id } = req.params;
-        // const { content } = req.body;
         const { title, content } = req.body;
 
         if (!ObjectId.isValid(id)) {
@@ -70,7 +67,6 @@ apiRouter.put("/documents/:id", async (req, res) => {
         }
 
         if (!content && !title) {
-        // if (!title || !content) {
             return res.status(400).json({ error: "Title or content are required" });
         }
 
@@ -79,7 +75,6 @@ apiRouter.put("/documents/:id", async (req, res) => {
         if (result.matchedCount === 0) {
             return res.status(404).json({ error: "Document not found" });
         }
-        // res.status(200).json({ data: { id, content } });
         res.status(200).json({ data: { id, title, content } });
     } catch (error) {
         res.status(500).json({ error: error.message });
