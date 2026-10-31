@@ -211,3 +211,49 @@ curl -X POST https://dv1677-data.nplab.bth.se/api/auth/login \
 curl https://dv1677-data.nplab.bth.se/api/documents \
   -H "Authorization: Bearer <token>"
 ```
+
+## Line comments (Krav 3)
+
+Comments can be attached to a document and a specific line number. The
+feature is mounted under `/api/documents/:id/comments` and is protected the
+same way as the document routes, so a valid JWT is required. A request
+without a valid token gets `401`.
+
+### Endpoints
+
+| Method | Path | Description | Status codes |
+|---|---|---|---|
+| GET | /api/documents/:id/comments | List all comments for a document, sorted by line | 200, 400, 404 |
+| POST | /api/documents/:id/comments | Add a comment on a specific line | 201, 400, 404 |
+| DELETE | /api/documents/:id/comments/:commentId | Delete your own comment | 200, 403, 404 |
+
+**POST body** `{ "line": 1, "text": "Your comment" }`
+
+- `line` must be a positive integer.
+- `text` is required and capped at 500 characters.
+
+**DELETE author check**
+
+A comment can only be deleted by the user who wrote it. If the logged in user
+is not the author, the API returns `403`.
+
+Documents are private, so only the document owner can read or write comments
+on it. Another user gets `404` for the document before the author check runs.
+This means the `403` can only happen if a document contains comments from
+more than one user, which needs document sharing. The rule is already in
+place for that case and is tested by adding a comment through the model.
+
+A comment id that does not belong to the document in the URL returns `404`.
+
+### Cleanup
+
+When a document is deleted, all of its comments are deleted too. This happens
+inside `docs.mjs` `deleteOne` right after the document is removed.
+
+### Line number drift (Option 1)
+
+A comment stores the line number from the moment it was written. If lines are
+later added or removed above it, the comment keeps its original line number
+and may point to a different line than intended. This is a known limitation
+and is accepted for now. A future version might track the comment by a line
+id or recalculate positions on save.

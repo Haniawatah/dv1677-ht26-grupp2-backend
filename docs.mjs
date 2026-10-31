@@ -1,5 +1,6 @@
 import { connectToDatabase, db } from './db/database.mjs';
 import { ObjectId } from 'mongodb';
+import comments from './comments.mjs';
 
 const docs = {
     getAll: async function getAll(owner) {
@@ -30,6 +31,12 @@ const docs = {
     deleteOne: async function deleteOne(id, owner) {
         await connectToDatabase();
         const result = await db.collection("documents").deleteOne({ _id: new ObjectId(id), owner });
+
+        // Clean up any comments that belonged to this document
+        if (result.deletedCount > 0) {
+            await comments.deleteByDocument(id);
+        }
+
         return result;
     }
 };

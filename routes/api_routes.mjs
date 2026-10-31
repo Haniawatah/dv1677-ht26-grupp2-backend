@@ -1,6 +1,7 @@
 import express from "express";
 import { ObjectId } from "mongodb";
 import documents from "../docs.mjs";
+import commentsRouter from "./comment_routes.mjs";
 import auth from "../models/auth.mjs";
 import requireAuth from "../middleware/auth.mjs";
 
@@ -8,6 +9,9 @@ const apiRouter = express.Router();
 
 // Require a valid JWT for all of the /api/documents routes
 apiRouter.use("/documents", requireAuth);
+
+// Mount comment routes under /api/documents/:id/comments
+apiRouter.use("/documents/:id/comments", commentsRouter);
 
 // GET /api/documents return all documents belonging to the user
 apiRouter.get("/documents", async (req, res) => {
