@@ -21,11 +21,37 @@ const docs = {
         await connectToDatabase();
         const { title, content } = body;
 
-        const result = await db.collection("documents").updateOne(
+        if (title && content) {
+            const result = await db.collection("documents").updateOne(
             { _id: new ObjectId(id) },
-            { $set: { title, content } }
-        );
-        return result;
+            { $set: { "title": title, "content": content } }
+            );
+            return result;
+        }
+
+        if (!title && content) {
+            const result = await db.collection("documents").updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { "content": content } }
+            );
+            return result;
+        }
+
+        if (title && !content) {
+            const result = await db.collection("documents").updateOne(
+            { _id: new ObjectId(id) },
+            { $set: { "title": title } }
+            );
+            return result;
+        }
+
+
+
+        // const result = await db.collection("documents").updateOne(
+        //     { _id: new ObjectId(id) },
+        //     { $set: { "title": title, "content": content } }
+        // );
+        // return result;
     },
     deleteOne: async function deleteOne(id) {
         await connectToDatabase();
