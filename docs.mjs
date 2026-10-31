@@ -17,16 +17,13 @@ const docs = {
         const result = await db.collection("documents").insertOne(body);
         return result;
     },
-    updateOne: async function updateOne(id, body, owner) {
+    updateOne: async function updateOne(id, body) {
         await connectToDatabase();
-        console.log("Här är jag i updateOne i docs.mjs")
-        const { content } = body;
-        // const { title, content } = body;
+        const { title, content } = body;
 
         const result = await db.collection("documents").updateOne(
-            { _id: new ObjectId(id), owner },
-            { $set: { content: content } }
-            // { $set: { title: title, content: content } }
+            { _id: new ObjectId(id) },
+            { $set: { title, content } }
         );
         return result;
     },
