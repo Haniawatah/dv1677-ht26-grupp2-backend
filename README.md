@@ -118,6 +118,7 @@ docker compose up -d
 | MONGODB_URI | Adress till databasen | mongodb://root:secret@localhost:27017 |
 | DB_NAME | Namnet på databasen | jsramverk |
 | PORT | Port som backend körs på | 3000 |
+| JWT_SECRET | Hemligheten som signerar JWT-tokens | en slumpmässig sträng, t.ex. `openssl rand -hex 32` |
 
 **GitHub-secrets**
 
@@ -127,3 +128,86 @@ docker compose up -d
 | VPS_HOST | IP-adressen till vår VPS | 194.47.155.218 |
 | VPS_SSH_KEY | En privat SSH-nyckel | -----BEGIN OPENSSH PRIVATE KEY----- .... -----END OPENSSH PRIVATE KEY----- |
 | VPS_USER | Användarnamnet på användaren | Ubuntu |
+| JWT_SECRET | Hemligheten som signerar JWT-tokens, samma värde som i `.env` | en slumpmässig sträng |
+
+## Authentication (Krav 1)
+
+Users can register and log in. A logged-in user only sees and edits their own
+documents, and every route that needs login is protected.
+
+### How it works
+
+Passwords are hashed with bcrypt (10 rounds) before they are stored, so plain
+text passwords are never saved. On login the password is checked with
+`bcrypt.compare` and, if it matches, the server signs a JWT containing the user
+id and email. The token expires after two hours.
+
+### Protected routes
+
+The middleware `requireAuth` in `middleware/auth.mjs` reads the
+`Authorization` header, checks that it is a `Bearer` token, and verifies the
+token with `jwt.verify` before letting the request continue. If the header is
+missing or the token is invalid or expired it returns `401`.
+
+In `routes/api_routes.mjs` the middleware is mounted on all document routes:
+
+```js
+apiRouter.use("/documents", requireAuth);
+```
+
+That means `GET /api/documents`, `GET /api/documents/:id`, `POST /api/documents`,
+`PUT /api/documents/:id` and `DELETE /api/documents/:id` all require a valid
+token. Register and login stay open.
+
+### Ownership
+
+Every document gets an `owner` field set to the id of the user who created it.
+In `docs.mjs` all queries filter on that field, so a request only ever touches
+the current user's documents:
+
+```js
+// getAll, getOne, updateOne and deleteOne all filter on the owner
+db.collection("documents").find({ owner, ... });
+```
+
+Update and delete also check the result. If no document matches both the id and
+the owner, the route returns `404`, so a logged-in user cannot read, change or
+delete another user's document by guessing an id.
+
+### Where JWT_SECRET is handled
+
+`JWT_SECRET` is never written in the code. It lives in the local `.env` file
+(which is gitignored), is passed to the container through `docker-compose.yml`,
+and on deploy it is written into `.env` on the VPS from the GitHub Secret of the
+same name. `server.mjs` refuses to start if `JWT_SECRET` is missing. The same
+value must be used in `.env` and as the GitHub Secret, otherwise a deployed app
+will not accept locally issued tokens.
+
+### Example without a token
+
+A request without a token gets a `401`:
+
+```bash
+curl -i https://dv1677-data.nplab.bth.se/api/documents
+```
+
+```text
+HTTP/1.1 401 Unauthorized
+{"error":"No token provided"}
+```
+
+Register, log in, and then list documents with the token:
+
+```bash
+curl -X POST https://dv1677-data.nplab.bth.se/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"demo@test.se","password":"secret123"}'
+
+curl -X POST https://dv1677-data.nplab.bth.se/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"demo@test.se","password":"secret123"}'
+# returns {"data":{"token":"..."}} -- copy the token
+
+curl https://dv1677-data.nplab.bth.se/api/documents \
+  -H "Authorization: Bearer <token>"
+```
