@@ -57,32 +57,26 @@ apiRouter.put("/documents/:id", async (req, res) => {
     console.log(req.params)
     try {
         const { id } = req.params;
-        console.log("4")
-        console.log(id)
-        const { content } = req.body;
-        // const { title, content } = req.body;
-        console.log(req.body)
+        // const { content } = req.body;
+        const { title, content } = req.body;
 
         if (!ObjectId.isValid(id)) {
             return res.status(400).json({ error: "Invalid document id" });
         }
 
-        if (!content) {
+        if (!content && !title) {
         // if (!title || !content) {
-            return res.status(400).json({ error: "Title and content are required" });
+            return res.status(400).json({ error: "Title or content are required" });
         }
-        console.log("6")
-        console.log(id)
-        const result = await documents.updateOne(id, { content });
-        // const result = await documents.updateOne(id, { title, content });
-        console.log("7")
-        console.log(id)
+        
+        const result = await documents.updateOne(id, { title, content });
+        
+        
         if (result.matchedCount === 0) {
             return res.status(404).json({ error: "Document not found" });
         }
-
-        res.status(200).json({ data: { id, content } });
-        // res.status(200).json({ data: { id, title, content } });
+        // res.status(200).json({ data: { id, content } });
+        res.status(200).json({ data: { id, title, content } });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
