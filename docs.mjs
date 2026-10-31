@@ -23,7 +23,7 @@ const docs = {
 
         if (title && content) {
             const result = await db.collection("documents").updateOne(
-            { _id: new ObjectId(id) },
+            { _id: new ObjectId(id), owner },
             { $set: { "title": title, "content": content } }
             );
             return result;
@@ -31,7 +31,7 @@ const docs = {
 
         if (!title && content) {
             const result = await db.collection("documents").updateOne(
-            { _id: new ObjectId(id) },
+            { _id: new ObjectId(id), owner },
             { $set: { "content": content } }
             );
             return result;
@@ -39,7 +39,7 @@ const docs = {
 
         if (title && !content) {
             const result = await db.collection("documents").updateOne(
-            { _id: new ObjectId(id) },
+            { _id: new ObjectId(id), owner },
             { $set: { "title": title } }
             );
             return result;
