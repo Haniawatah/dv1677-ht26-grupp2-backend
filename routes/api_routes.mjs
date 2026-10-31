@@ -40,7 +40,7 @@ apiRouter.post("/documents", async (req, res) => {
     try {
         const { title, content, type } = req.body;
 
-        if (!title || !content || !type) {
+        if (!title || !content) {
             return res.status(400).json({ error: "Title, content and type are required" });
         }
 
