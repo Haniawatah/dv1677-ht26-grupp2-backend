@@ -44,14 +44,6 @@ const docs = {
             );
             return result;
         }
-
-
-
-        // const result = await db.collection("documents").updateOne(
-        //     { _id: new ObjectId(id) },
-        //     { $set: { "title": title, "content": content } }
-        // );
-        // return result;
     },
     deleteOne: async function deleteOne(id) {
         await connectToDatabase();
