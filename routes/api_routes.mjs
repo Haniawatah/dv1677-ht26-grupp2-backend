@@ -64,7 +64,11 @@ apiRouter.post("/documents", async (req, res) => {
 apiRouter.put("/documents/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, content } = req.body;
+        let { title, content, updatedAt } = req.body;
+
+        if (!updatedAt) {
+            updatedAt = Date();
+        }
 
         if (!ObjectId.isValid(id)) {
             return res.status(400).json({ error: "Invalid document id" });
@@ -74,12 +78,12 @@ apiRouter.put("/documents/:id", async (req, res) => {
             return res.status(400).json({ error: "Title or content are required" });
         }
 
-        const result = await documents.updateOne(id, { title, content }, req.user.id);
+        const result = await documents.updateOne(id, { title, content, updatedAt }, req.user.id);
 
         if (result.matchedCount === 0) {
             return res.status(404).json({ error: "Document not found" });
         }
-        res.status(200).json({ data: { id, title, content } });
+        res.status(200).json({ data: { id, title, content, updatedAt } });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
