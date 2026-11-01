@@ -118,6 +118,7 @@ docker compose up -d
 | MONGODB_URI | Adress till databasen | mongodb://root:secret@localhost:27017 |
 | DB_NAME | Namnet på databasen | jsramverk |
 | PORT | Port som backend körs på | 3000 |
+| JWT_SECRET | Hemligheten som signerar JWT-tokens | en slumpmässig sträng, t.ex. `openssl rand -hex 32` |
 
 **GitHub-secrets**
 
@@ -127,3 +128,154 @@ docker compose up -d
 | VPS_HOST | IP-adressen till vår VPS | 194.47.155.218 |
 | VPS_SSH_KEY | En privat SSH-nyckel | -----BEGIN OPENSSH PRIVATE KEY----- .... -----END OPENSSH PRIVATE KEY----- |
 | VPS_USER | Användarnamnet på användaren | Ubuntu |
+| JWT_SECRET | Hemligheten som signerar JWT-tokens, samma värde som i `.env` | en slumpmässig sträng |
+
+## Authentication (Krav 1)
+
+Users can register and log in. A logged-in user only sees and edits their own
+documents, and every route that needs login is protected.
+
+### How it works
+
+Passwords are hashed with bcrypt (10 rounds) before they are stored, so plain
+text passwords are never saved. On login the password is checked with
+`bcrypt.compare` and, if it matches, the server signs a JWT containing the user
+id and email. The token expires after two hours.
+
+### Protected routes
+
+The middleware `requireAuth` in `middleware/auth.mjs` reads the
+`Authorization` header, checks that it is a `Bearer` token, and verifies the
+token with `jwt.verify` before letting the request continue. If the header is
+missing or the token is invalid or expired it returns `401`.
+
+In `routes/api_routes.mjs` the middleware is mounted on all document routes:
+
+```js
+apiRouter.use("/documents", requireAuth);
+```
+
+That means `GET /api/documents`, `GET /api/documents/:id`, `POST /api/documents`,
+`PUT /api/documents/:id` and `DELETE /api/documents/:id` all require a valid
+token. Register and login stay open.
+
+### Ownership
+
+Every document gets an `owner` field set to the id of the user who created it.
+In `docs.mjs` all queries filter on that field, so a request only ever touches
+the current user's documents:
+
+```js
+// getAll, getOne, updateOne and deleteOne all filter on the owner
+db.collection("documents").find({ owner, ... });
+```
+
+Update and delete also check the result. If no document matches both the id and
+the owner, the route returns `404`, so a logged-in user cannot read, change or
+delete another user's document by guessing an id.
+
+### Where JWT_SECRET is handled
+
+`JWT_SECRET` is never written in the code. It lives in the local `.env` file
+(which is gitignored), is passed to the container through `docker-compose.yml`,
+and on deploy it is written into `.env` on the VPS from the GitHub Secret of the
+same name. `server.mjs` refuses to start if `JWT_SECRET` is missing. The same
+value must be used in `.env` and as the GitHub Secret, otherwise a deployed app
+will not accept locally issued tokens.
+
+### Example without a token
+
+A request without a token gets a `401`:
+
+```bash
+curl -i https://dv1677-data.nplab.bth.se/api/documents
+```
+
+```text
+HTTP/1.1 401 Unauthorized
+{"error":"No token provided"}
+```
+
+Register, log in, and then list documents with the token:
+
+```bash
+curl -X POST https://dv1677-data.nplab.bth.se/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"demo@test.se","password":"secret123"}'
+
+curl -X POST https://dv1677-data.nplab.bth.se/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"demo@test.se","password":"secret123"}'
+# returns {"data":{"token":"..."}} -- copy the token
+
+curl https://dv1677-data.nplab.bth.se/api/documents \
+  -H "Authorization: Bearer <token>"
+```
+
+## Line comments (Krav 3)
+
+Comments can be attached to a document and a specific line number. The
+feature is mounted under `/api/documents/:id/comments` and is protected the
+same way as the document routes, so a valid JWT is required. A request
+without a valid token gets `401`.
+
+### Endpoints
+
+| Method | Path | Description | Status codes |
+|---|---|---|---|
+| GET | /api/documents/:id/comments | List all comments for a document, sorted by line | 200, 400, 404 |
+| POST | /api/documents/:id/comments | Add a comment on a specific line | 201, 400, 404 |
+| DELETE | /api/documents/:id/comments/:commentId | Delete your own comment | 200, 403, 404 |
+
+**POST body** `{ "line": 1, "text": "Your comment" }`
+
+- `line` must be a positive integer.
+- `text` is required and capped at 500 characters.
+
+**DELETE author check**
+
+A comment can only be deleted by the user who wrote it. If the logged in user
+is not the author, the API returns `403`.
+
+Documents are private, so only the document owner can read or write comments
+on it. Another user gets `404` for the document before the author check runs.
+This means the `403` can only happen if a document contains comments from
+more than one user, which needs document sharing. The rule is already in
+place for that case and is tested by adding a comment through the model.
+
+A comment id that does not belong to the document in the URL returns `404`.
+
+### Cleanup
+
+When a document is deleted, all of its comments are deleted too. This happens
+inside `docs.mjs` `deleteOne` right after the document is removed.
+
+### Line number drift (Option 1)
+
+A comment stores the line number from the moment it was written. If lines are
+later added or removed above it, the comment keeps its original line number
+and may point to a different line than intended. This is a known limitation
+and is accepted for now. A future version might track the comment by a line
+id or recalculate positions on save.
+
+## Code-Mode (Krav 4)
+
+The user has the possibility to write the documents in pure text or in formatted code.
+
+### Functionality – Create and Edit
+
+Once logged in, the user can create two types of documents using the buttons on the landingpage. The buttons named `“Skapa Text”` creates a text document and sends the user to a form with a textarea, and the one named `“Skapa Kod”` creates a code document that uses the Monaco editor. The editor is currently set to use the syntax from JavaScript.
+When the code or text is finished, the user saves it and it is stored in the Collection documents in MongoDB.
+
+The title and content of the document is stored as fields together with type, that defines if the content is text or code. The user is also connected to the document by its unique _id which is stored in the field owner.
+This function is implemented in the two components `frontend/src/CreateDocument.jsx`, which handles the texteditor, and `frontend/src/CreateCode.jsx`, which handles the code-editor.
+
+In addition to this, the users can also edit their documents regardless of whether it is code or text. This is implemented in the component `frontend/src/SingleDocument.jsx`. The user selects a document to edit and SingleDocument.jsx renders the page with a text-editor och code-editor based on whether the type-field has the attribute text or code.
+
+### AutoSave
+
+An autosave function is also implemented in the SingleDocument-component. Therefore, there is no save-button on the page. When the user starts to edit the content of the document, it is stored in the useState-variable content. While the user starts typing, a timer starts. And when the timer has reached one second, the value from content is stored in the database.
+
+But the timer resets every time the user presses a key on the keyboard. This is being done to avoid making so many connections to the database. The user writes a line or two of text without paus and during the times the user thinks of the next sentence, the autosave is activated and the application stores the content in the database. The user can then continue editing their document. 
+
+The autosave-function is implemented on both the text-editor and the code-editor
