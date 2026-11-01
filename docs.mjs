@@ -1,5 +1,6 @@
 import { connectToDatabase, db } from './db/database.mjs';
 import { ObjectId } from 'mongodb';
+import comments from './comments.mjs';
 
 const docs = {
     getAll: async function getAll(owner) {
@@ -19,12 +20,12 @@ const docs = {
     },
     updateOne: async function updateOne(id, body, owner) {
         await connectToDatabase();
-        const { title, content } = body;
+        const { title, content, updatedAt } = body;
 
         if (title && content) {
             const result = await db.collection("documents").updateOne(
             { _id: new ObjectId(id), owner },
-            { $set: { "title": title, "content": content } }
+            { $set: { "title": title, "content": content, "updatedAt": updatedAt } }
             );
             return result;
         }
@@ -32,7 +33,7 @@ const docs = {
         if (!title && content) {
             const result = await db.collection("documents").updateOne(
             { _id: new ObjectId(id), owner },
-            { $set: { "content": content } }
+            { $set: { "content": content, "updatedAt": updatedAt } }
             );
             return result;
         }
@@ -40,7 +41,7 @@ const docs = {
         if (title && !content) {
             const result = await db.collection("documents").updateOne(
             { _id: new ObjectId(id), owner },
-            { $set: { "title": title } }
+            { $set: { "title": title, "updatedAt": updatedAt } }
             );
             return result;
         }
@@ -48,6 +49,12 @@ const docs = {
     deleteOne: async function deleteOne(id, owner) {
         await connectToDatabase();
         const result = await db.collection("documents").deleteOne({ _id: new ObjectId(id), owner });
+
+        // Clean up any comments that belonged to this document
+        if (result.deletedCount > 0) {
+            await comments.deleteByDocument(id);
+        }
+
         return result;
     }
 };
