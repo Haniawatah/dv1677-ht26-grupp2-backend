@@ -264,17 +264,17 @@ The user has the possibility to write the documents in pure text or in formatted
 
 ### Functionality – Create and Edit
 
-Once logged in, the user can create two types of documents using the buttons on the landingpage. The buttons named “Skapa Text” creates a text document and sends the user to a form with a textarea, and the one named “Skapa Kod” creates a code document that uses the Monaco editor. The editor is currently set to use the syntax from JavaScript.
+Once logged in, the user can create two types of documents using the buttons on the landingpage. The buttons named `“Skapa Text”` creates a text document and sends the user to a form with a textarea, and the one named `“Skapa Kod”` creates a code document that uses the Monaco editor. The editor is currently set to use the syntax from JavaScript.
 When the code or text is finished, the user saves it and it is stored in the Collection documents in MongoDB.
 
 The title and content of the document is stored as fields together with type, that defines if the content is text or code. The user is also connected to the document by its unique _id which is stored in the field owner.
-This function is implemented in the two components CreateDocument.jsx, which handles the texteditor, and CreateCode.jsx, which handles the code-editor.
+This function is implemented in the two components `frontend/src/CreateDocument.jsx`, which handles the texteditor, and `frontend/src/CreateCode.jsx`, which handles the code-editor.
 
-In addition to this, the users can also edit their documents regardless of whether it is code or text. This is implemented in the component SingleDocument.jsx. The user selects a document to edit and SingleDocument.jsx renders the page with a text-editor och code-editor based on whether the type-field has the attribute text or code.
+In addition to this, the users can also edit their documents regardless of whether it is code or text. This is implemented in the component `frontend/src/SingleDocument.jsx`. The user selects a document to edit and SingleDocument.jsx renders the page with a text-editor och code-editor based on whether the type-field has the attribute text or code.
 
 ### AutoSave
 
-An autosave function is also implemented in the SingleDocument. Therefore, there is no save-button on the page. When the user starts to edit the content of the document, it is stored in the useState-variable content. While the user starts typing, a timer starts. And when the timer has reached one second, the value from content is stored in the database.
+An autosave function is also implemented in the SingleDocument-component. Therefore, there is no save-button on the page. When the user starts to edit the content of the document, it is stored in the useState-variable content. While the user starts typing, a timer starts. And when the timer has reached one second, the value from content is stored in the database.
 
 But the timer resets every time the user presses a key on the keyboard. This is being done to avoid making so many connections to the database. The user writes a line or two of text without paus and during the times the user thinks of the next sentence, the autosave is activated and the application stores the content in the database. The user can then continue editing their document. 
 
